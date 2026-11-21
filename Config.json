@@ -1,4 +1,7 @@
-API_URL=https://api.kharcharoast.com/v1
-ENCRYPTION_KEY=supersecretkey123
-ROAST_MODEL_ENDPOINT=https://api.gemini.ai/v1/chat/completions
-DATABASE_ENCRYPTION=true
+{
+  "appName": "KharchaRoast",
+  "version": "1.0.0",
+  "defaultRoastMode": "savage",
+  "upiSpendingLimit": 2000,
+  "rentDueDay": 5
+}
