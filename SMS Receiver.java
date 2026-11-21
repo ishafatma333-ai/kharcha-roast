@@ -1,25 +1,36 @@
-import React from 'react';
-import { NavigationContainer } from '@react-navigation/native';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import DashboardScreen from './DashboardScreen';
-import RoastScreen from './RoastScreen';
+package com.kharcharoast;
 
-const Tab = createBottomTabNavigator();
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.os.Bundle;
+import android.telephony.SmsMessage;
+import android.util.Log;
 
-export default function Navigation() {
-  return (
-    <NavigationContainer>
-      <Tab.Navigator
-        screenOptions={{
-          headerShown: false,
-          tabBarStyle: { backgroundColor: '#1E1E1E', borderTopWidth: 0 },
-          tabBarActiveTintColor: '#FF3366',
-          tabBarInactiveTintColor: '#888',
-        }}
-      >
-        <Tab.Screen name="Dashboard" component={DashboardScreen} />
-        <Tab.Screen name="Roast Mode" component={RoastScreen} />
-      </Tab.Navigator>
-    </NavigationContainer>
-  );
-  }
+public class SmsReceiver extends BroadcastReceiver {
+    private static final String SMS_RECEIVED = "android.provider.Telephony.SMS_RECEIVED";
+
+    @Override
+    public void onReceive(Context context, Intent intent) {
+        if (SMS_RECEIVED.equals(intent.getAction())) {
+            Bundle bundle = intent.getExtras();
+            if (bundle != null) {
+                Object[] pdus = (Object[]) bundle.get("pdus");
+                if (pdus != null) {
+                    for (Object pdu : pdus) {
+                        SmsMessage smsMessage = SmsMessage.createFromPdu((byte[]) pdu);
+                        String sender = smsMessage.getDisplayOriginatingAddress();
+                        String messageBody = smsMessage.getMessageBody();
+                        
+                        // Filter for bank/UPI alerts
+                        if (messageBody.toLowerCase().contains("debited") || messageBody.toLowerCase().contains("upi")) {
+                            Log.d("SmsReceiver", "UPI Alert detected from " + sender + ": " + messageBody);
+                            // Pass data to TransactionService
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+       
